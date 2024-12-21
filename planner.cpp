@@ -1,5 +1,6 @@
 # include<iostream>
 # include<chrono>
+# include<fstream>
 
 using namespace std;
 
@@ -7,6 +8,16 @@ class Task{
     string taskName;
     string date;
     bool isComplete;
+    void saveTask(ofstream tasksFile)
+    {
+        tasksFile.open("allTasks.txt");
+        //iterate to end of list and store?
+    }
+    static void loadAllTasks(ifstream tasksFile)
+    {
+        tasksFile.open("allTasks.txt");
+    }
+
 
 };
 
