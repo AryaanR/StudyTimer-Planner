@@ -1,9 +1,14 @@
 # Untitled study timer/life planner
 
 Core Features
+------Done-----
 - Tasks (Name, due date, is complete)
+
+---NOT DONE----
 - Main Timer with custom pomodoro (where user can adjust break and work time)
 - ETC for your timer
+- organize tasks by due date
+- Work timer settings that are saved to a file (different)
 
 Nice to Have:
 - Task descriptions
@@ -26,6 +31,7 @@ UI (Command Line MVP)
 
     if Timers
     1. Work Timer
+    2. Work Timer Settings
 
     in work Timer mode...
     1. Pause (update ETC every minute)
