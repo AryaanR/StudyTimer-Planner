@@ -35,10 +35,14 @@ class Task{
         
     }
 
-    Task(string newTaskName)
+    Task()
     {
         isComplete = false;
-        taskName = newTaskName;
+
+        string initTaskName;
+        cout << "NEW TASK, Enter task name: ";
+        cin >> initTaskName;
+        taskName = initTaskName;
         while (dueDate[0], dueDate[1], dueDate[2] < 1, dueDate[2] < 2024)
         {
             cout << "Enter Day (DD MM YYYY): ";
@@ -46,6 +50,7 @@ class Task{
         }
         //checks if dates are correct
     }
+
     void printTask()
     {
         cout<<"TASK: " << taskName << endl<< "  Due: ";
@@ -119,9 +124,9 @@ class SubTimer : Timer{
 
 int main()
 {
-    cout<< "===================================================================="<< endl;
+    cout<< "+==================================================================+"<< endl;
     cout<< "                     T A S K  M A S T E R  VER. 0.1                "<<endl;
-    cout<< "===================================================================="<< endl;
+    cout<< "+==================================================================+"<< endl;
     //UI
     cout << "Choose an option: " <<endl;
     cout << "1. Tasks" << endl << "2. Timers" << endl << "3. Quit" << endl;
@@ -138,11 +143,35 @@ int main()
     if (intInput == 1)
     {
         //Tasks Menu
+        cout << "+=========================+" << endl;
+        cout << "      T A S K  M E N U     " << endl;
+        cout << "+=========================+" << endl;
+        cout << "1. Create New Task" << endl;
+        cout << "2. Load All Tasks" << endl;
+        cout << "3. Save Task" << endl;
+        cin >> input; 
+        intInput = stoi(input);
+        switch (intInput) {
+            case 1:
+                Task* newTask = new Task(); 
+                break;
+            case 2:
+                Task::loadAllTasks;
+            case 3:
+                cout<<"3";
+        }
     }
 
     if (intInput == 2)
     {
         //Timers Menu
+                //Tasks Menu
+        cout << "+=========================+" << endl;
+        cout << "     T I M E R  M E N U    " << endl;
+        cout << "+=========================+" << endl;
+        cout << "1. Work Timer (Pomodoro)" << endl;
+        cin >> input; 
+        intInput = stoi(input);
     }
 
     if (intInput == 3)
