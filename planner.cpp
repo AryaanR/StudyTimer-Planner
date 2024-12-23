@@ -4,6 +4,8 @@
 //"thread" allows you to pass off certain parts of this program to different threads in the CPU, or just stop the thread/ process entirely
 # include <thread>
 # include <vector>
+# include <conio.h>
+# include <iomanip>
 //open this in visual studio
 //implement timer class feature (Actually counts down, can pause)
 //implement pomodoro timner class feature (gives custom work time, custom break time, and ETC)
@@ -155,6 +157,94 @@ class Timer{
     int secondsTime;
     int minutesTime;
     int hoursTime;
+    bool isPaused;
+
+    //TODO: Implement a reset function to allow the same timer to be reused
+
+    void start()
+    {
+        int timeInSeconds = hoursTime * 3600 + minutesTime * 60 + secondsTime;
+        cout << endl <<  "Starting Timer... (Press SPACE to pause/resume)" <<endl;
+        etc();
+        isPaused = false;
+        //split while statement into a while (for when timer is done or not)
+        //and and "paused, not paused if tree" inside this while loop, so program doesn't break out when paused
+        while(timeInSeconds > 0)
+        {
+            if (!isPaused)
+            {
+                this_thread::sleep_for(seconds(1));
+                timeInSeconds--;
+                //to display minute and hourly time, take modulus of seconds by 3600 -> remainder seconds
+                int remainderSeconds = timeInSeconds % 3600;
+                int hoursLeft = (timeInSeconds - remainderSeconds) / 3600;
+                int secondsLeft = remainderSeconds % 60;
+                int minutesLeft = (remainderSeconds - secondsLeft) / 60;
+                //subtract from total to get hours in seconds, and divide by 3600 to get hours
+                // take remainder seconds and mod 60 to get number of seconds
+                //subtract remainder by seconds to get minutes
+                //clears previous line
+                cout <<hoursLeft << " hours, " << minutesLeft << " minutes, " << secondsLeft <<" seconds left." <<endl;
+
+                //change the actual value of the hours, minutes, and seconds time to adjust the etc when paused
+                hoursTime = hoursLeft;
+                minutesTime = minutesLeft;
+                secondsTime = secondsLeft;
+            }
+            //checks if its paused or if want to unpause
+            pause();
+        }
+       
+       cout<< "Timer Complete!" << endl;
+
+    }
+
+    void pause()
+    {
+        //should have an option to cancel the timer and clear it!
+
+        //should pause the time, and update the etc
+        //how to "pause?"
+        // if pause, it should break from the while loop, or at least stay in a state that it prints a prompt once and wait until the user presses another button?
+        //better to use a boolean state as a toggle instead of asking for a keystroke twice
+        if (_kbhit())
+        {
+            char ch = _getch();
+            //if space is pressed
+            if (ch == ' ')
+            {
+                //this converts a boolean value to its opposite (your toggle)
+                isPaused = !isPaused;
+                // stays in this loop until it gets an input
+                if (isPaused)
+                {
+                   cout << "\nTimer paused... Press SPACE to resume" << endl;
+                }
+                else 
+                {
+                    cout << "\nTimer resumed!" << endl;
+                    etc();
+                }  
+            }
+
+        }
+    }
+
+    void etc()
+    {
+        //displays estimated time of completion to the user relative to the system time
+        auto endTimePoint = chrono::system_clock::now() + hours(hoursTime) + minutes(minutesTime) + seconds(secondsTime);
+        auto endTime = system_clock::to_time_t(endTimePoint);
+        //convert to regular day month hour format from epoch time
+        tm* timeInfo = localtime(&endTime);
+        
+        // Format time without the date and seconds
+        cout << "ETC: " << setfill('0') 
+             << setw(2) << timeInfo->tm_hour << ":"
+             << setw(2) << timeInfo->tm_min <<
+             endl;
+    }
+
 
     Timer()
     {
@@ -170,19 +260,30 @@ class Timer{
     }
 };
 
-class pomodoroTimer : Timer{
+class PomodoroTimer : Timer{
 
-    Timer workTimer;
-    Timer breakTimer;
-    float ETC;
+    Timer* workTimer;
+    Timer* breakTimer;
+    int totalWorkMinutes;
     //duration is an "interval of time" type and "time point" is a point in time, two different things
-    void setTimer(int mins, system_clock::time_point timePoint)
+    //default constructor that does all the prompting
+    public: 
+    PomodoroTimer()
     {
-        auto newTime = system_clock::to_time_t(timePoint + hours(hoursTime) 
-        + minutes(minutesTime)
-        + seconds(secondsTime));
-        cout<<"ETC: " << ctime(&newTime);
+        //should ask for total work time (minutes), and desired break time (ideally, store this as a preference in a .txt file later)
+        cout << "What's your total work time?: ";
+        cin >> totalWorkMinutes;
+        int workMinutes, breakMinutes = 0;
+        cout << "Work time (1 sitting in minutes): ";
+        cin >> workMinutes;
+        workTimer = new Timer(0, workMinutes, 0);
+        cout << "How long is your break time (minutes)?: ";
+        cin >> breakMinutes;
+        breakTimer = new Timer(0, breakMinutes, 0);
+        //calculate repetitions of work, break cycle
     }
+
+    //should also store the work data into a .txt file, as well as the day, so it can be displayed on a heat map
 };
 
 class SubTimer : Timer{
@@ -195,8 +296,7 @@ class SubTimer : Timer{
     }
 };
 
-int main()
-{
+int main() {
     //create save file for tasks
     //does this create a file in the directory
     ofstream tasksOut;
@@ -204,8 +304,7 @@ int main()
     TaskList mainTaskList;
     mainTaskList.loadAllTasks(tasksIn);
 bool exitProgram = false;
-while(!exitProgram)
-{
+while(!exitProgram) {
     cout<< "+==================================================================+"<< endl;
     cout<< "                     T A S K  M A S T E R  VER. 0.1                "<<endl;
     cout<< "+==================================================================+"<< endl;
@@ -213,6 +312,7 @@ while(!exitProgram)
     cout << "Choose an option: " <<endl;
     cout << "1. Tasks" << endl << "2. Timers" << endl << "3. Quit" << endl;
     string input;
+
     cin >> input; 
     int mainInput = stoi(input);
     while (mainInput > 3 || mainInput < 1)
@@ -223,7 +323,7 @@ while(!exitProgram)
         cout<< mainInput;
     }
     //MAIN MENU SELECTION
-    switch (mainInput){
+    switch (mainInput) {
         case 1:{
             bool backtoMain = false;
             while (!backtoMain)
@@ -284,8 +384,7 @@ while(!exitProgram)
        //TIMERS MENU
         case 2:{
             bool backtoMain = false;
-            while (!backtoMain)
-            {
+            while (!backtoMain){
                 cout << "+=========================+" << endl;
                 cout << "     T I M E R  M E N U    " << endl;
                 cout << "+=========================+" << endl;
@@ -293,14 +392,26 @@ while(!exitProgram)
                 string input3;
                 cin >> input3; 
                 int timerInput = stoi(input3);
+                
+                //want UI that allows you to access both
+                switch(timerInput){
+                    case 1:{
+                        //creating a pomodoro timer
+                        PomodoroTimer* workTimer = new PomodoroTimer();
+
+                    }
+                }
             }
         }
-        case 3:
+
+        case 3: {
         //quit
         exitProgram = true;
-    }
-}
-
+        break;
+        }   
+        
     cout<<"Quitting...";
     return 0;
+}
+}
 }
