@@ -15,7 +15,7 @@ Nice to Have:
 - Reminder notifications
 - "Forget me not" Tasks (daily stuff you keep on forgetting, like exercising or brushing)
 - AI-connected habit help (how do i make this habit stick?)
-
+- //feature to give total time you have, and then creates a schedule based on that and your saved preferences, or you give it a schedule and it makes it for you
 
 
 UI (Command Line MVP)

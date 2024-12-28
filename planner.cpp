@@ -36,6 +36,7 @@ class Task{
             string temp;
             tasksFile << taskName << " " << dueDate[0] << " " << dueDate[1] << " " << dueDate[2] << " " << isComplete << endl;
         }
+        tasksFile.close();
     }
 
     Task()
@@ -85,6 +86,7 @@ class TaskList{
     vector<Task*> taskListVector;
     void printAllTasks()
     {
+        //load tasks again to update any new tasks
         cout << endl << "+===========Main Tasks============+" << endl;
        for (int i = 0; i < taskListVector.size(); i++)
        {
@@ -110,6 +112,7 @@ class TaskList{
         //load task by getting all its data in vars, passing it into 
         //should be able to load one task, and use this to load all
         //no need to split, if so, refactor
+        tasksFile.close();
     }
 
     void toggleCompleteTask(int taskNumber)
@@ -133,6 +136,14 @@ class TaskList{
             cout << "Task number not found" << endl;;
         }
     }
+
+    void deleteTask(int taskNumber)
+    {
+        cout <<"DELETING... " << taskNumber <<endl;
+        //erases that task (goes into file, finds that line, and erases it)
+        
+    }
+
 };
 
 class Clock{
@@ -184,7 +195,10 @@ class Timer{
                 // take remainder seconds and mod 60 to get number of seconds
                 //subtract remainder by seconds to get minutes
                 //clears previous line
-                cout <<hoursLeft << " hours, " << minutesLeft << " minutes, " << secondsLeft <<" seconds left." <<endl;
+                cout << "\r"<<hoursLeft << " hours, " 
+                     << minutesLeft << " minutes, " 
+                     << secondsLeft <<" seconds left." << flush;
+                     //what does flush do?
 
                 //change the actual value of the hours, minutes, and seconds time to adjust the etc when paused
                 hoursTime = hoursLeft;
@@ -192,14 +206,22 @@ class Timer{
                 secondsTime = secondsLeft;
             }
             //checks if its paused or if want to unpause
-            pause();
+            pauseAndCancel(timeInSeconds);
         }
-       
-       cout<< "Timer Complete!" << endl;
+       if (timeInSeconds > -1)
+       {
+        cout<< "Timer Complete!" << endl;
+        //should store this into today's work time (in the pomodoro method, not this)
+       }
+       else
+       {
+        cout<<"Cancelled Timer" << endl;
+        //should not store this time as "work time"
+       }
 
     }
-
-    void pause()
+    //passes by reference to directly change the actual value in the original start function
+    void pauseAndCancel(int &timeInSeconds)
     {
         //should have an option to cancel the timer and clear it!
 
@@ -218,7 +240,7 @@ class Timer{
                 // stays in this loop until it gets an input
                 if (isPaused)
                 {
-                   cout << "\nTimer paused... Press SPACE to resume" << endl;
+                   cout << "\nTimer paused... Press SPACE to resume, press ESCAPE to Ddlete" << endl;
                 }
                 else 
                 {
@@ -226,6 +248,15 @@ class Timer{
                     etc();
                 }  
             }
+            else if (ch == 27)
+            {
+                cout<< "cancelling timer..." <<endl;
+                //not good to delete within itself, so just delete the instance where it is
+                timeInSeconds = -1;
+                return;
+                //escape the function and change the time value to -1 so the timer cancels instead of "finishes"
+            }
+            
 
         }
     }
@@ -260,20 +291,27 @@ class Timer{
     }
 };
 
-class PomodoroTimer : Timer{
-
+class PomodoroTimer{
+    //shouldn't prompt timer duration for this constructor!
     Timer* workTimer;
     Timer* breakTimer;
     int totalWorkMinutes;
+    int workMinutes;
+    int breakMinutes;
+    int timerRepeat;
+    int leftoverWork;
     //duration is an "interval of time" type and "time point" is a point in time, two different things
     //default constructor that does all the prompting
     public: 
+
+    //bc derived, calling original blank constructor and then this constructor, Therefore don't make this a derived class of timer, as it behaves differently
+    //why does this all happen in the constructor??
     PomodoroTimer()
     {
+        //smth happens before constructor (constructor conflict between normal and overloaded one?)
         //should ask for total work time (minutes), and desired break time (ideally, store this as a preference in a .txt file later)
         cout << "What's your total work time?: ";
         cin >> totalWorkMinutes;
-        int workMinutes, breakMinutes = 0;
         cout << "Work time (1 sitting in minutes): ";
         cin >> workMinutes;
         workTimer = new Timer(0, workMinutes, 0);
@@ -281,6 +319,40 @@ class PomodoroTimer : Timer{
         cin >> breakMinutes;
         breakTimer = new Timer(0, breakMinutes, 0);
         //calculate repetitions of work, break cycle
+        timerRepeat = totalWorkMinutes / (workMinutes + breakMinutes);
+        //does this give the minutes or the seconds as well?
+        leftoverWork = totalWorkMinutes - ((workMinutes + breakMinutes) * timerRepeat);
+        cout <<"Total Work: " << totalWorkMinutes << ", Working " << workMinutes << " in one sitting, with " << breakMinutes << " minute breaks, repeated " << timerRepeat <<" times, with leftover time: " << leftoverWork <<endl;
+        //cout<<"Total work time: " << ((workMinutes + breakMinutes) * timerRepeat + leftoverWork);
+        //print the etc based on your total work minutes?, but you want this to update if paused, so take etcs from each timer, multiply by repetitions? or pause, when resume, take new time point and add time remaining from totalWorkMinutes??
+
+        //create a work and a break timer of that length and time, and then delete and create new timers of the new lengths
+        workTimer = new Timer(0, workMinutes, 0);
+        breakTimer = new Timer(0, breakMinutes, 0);
+
+    }
+
+    void start()
+    {
+        for (int i = 0; i < timerRepeat; i++)
+        {
+            //loop for how many work and break times there are
+            cout << endl << endl << "Work session " << i << "/" << timerRepeat <<endl; 
+            workTimer->start();
+            //should be able to press escape to cancel timer
+
+            //this should stop entire thread, so 2nd break timer can't start until this finishes
+            //let work timer start and go on, should be able to control, right?
+            //workTimer should be done by now, so run break timer
+            cout << endl << endl << "Break " << i << "/" << timerRepeat << endl;
+            breakTimer->start();
+        }
+        //timer made for extra time
+        delete workTimer;
+        workTimer = new Timer(0, leftoverWork, 0);
+        workTimer->start();
+        cout << endl << endl << "Work Done!";
+        this_thread::sleep_for(seconds(5));
     }
 
     //should also store the work data into a .txt file, as well as the day, so it can be displayed on a heat map
@@ -310,11 +382,14 @@ while(!exitProgram) {
     cout<< "+==================================================================+"<< endl;
     //UI
     cout << "Choose an option: " <<endl;
-    cout << "1. Tasks" << endl << "2. Timers" << endl << "3. Quit" << endl;
+    cout << "1. Tasks" << endl 
+    << "2. Timers" << endl 
+    << "3. Quit" << endl;
     string input;
 
     cin >> input; 
     int mainInput = stoi(input);
+    
     while (mainInput > 3 || mainInput < 1)
     {
         cout << "Please choose a valid option" << endl;
@@ -326,6 +401,7 @@ while(!exitProgram) {
     switch (mainInput) {
         case 1:{
             bool backtoMain = false;
+            cout << string(100, '\n');
             while (!backtoMain)
             {
                 //create a back to main menu variable that stops this from going back to main menu and starting the timer one
@@ -355,7 +431,9 @@ while(!exitProgram) {
                         break;
                     }
                     case 2:{
+                        mainTaskList.loadAllTasks(tasksIn);
                         mainTaskList.printAllTasks();
+                        //FOR YOUR CHANGES TO BE UPDATED AND REREAD IN REAL TIME, MAKE SURE TO PROPERLY CLOSE THE FILE AFTER EDITING AND OPENING IT!
                         break;
                     }
                     case 3:{
@@ -373,18 +451,45 @@ while(!exitProgram) {
                         break;
                     }
                     //clear completed tasks
-                    case 4:
+                    case 4:{
+                    //delete a task or delete all completed tasks (move into a new menu?)
+                    cout << endl << endl <<"1. Delete 1 Task" <<endl 
+                         <<"2. Delete all completed tasks" << endl;
+                         int case5Input;
+                         cin >> case5Input;
+                         switch(case5Input){
+
+                            case 1:{
+                                int taskNumber;
+                                cout << "Choose a task to delete: ";
+                                cin >> taskNumber;
+                                mainTaskList.deleteTask(taskNumber);
+                            }
+                            case 2:{
+                                for (int i = 1; i <= mainTaskList.taskListVector.size(); i++)
+                                {
+                                    if (mainTaskList.taskListVector[i]->isComplete == true)
+                                    {
+                                        mainTaskList.deleteTask(i);
+                                    }
+                                }
+                            }
+
+                         }
+                    }
+                    case 5:
                     backtoMain = true;
-                }
+                    //break gets out of the entire switch statement
+                    break;
             }
-            //break gets out of the entire switch statement
-            break;
             //if you don't do this, it automatically goes to the next case
         }
        //TIMERS MENU
         case 2:{
-            bool backtoMain = false;
-            while (!backtoMain){
+                bool backtoMain = false;
+                cout << string(100, '\n');
+                while (!backtoMain){
+                cout << string(100, '\n');
                 cout << "+=========================+" << endl;
                 cout << "     T I M E R  M E N U    " << endl;
                 cout << "+=========================+" << endl;
@@ -397,7 +502,8 @@ while(!exitProgram) {
                 switch(timerInput){
                     case 1:{
                         //creating a pomodoro timer
-                        PomodoroTimer* workTimer = new PomodoroTimer();
+
+                        PomodoroTimer* currentTimer = new PomodoroTimer();
 
                     }
                 }
