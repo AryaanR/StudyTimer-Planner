@@ -499,7 +499,7 @@ class Timer{
                 // stays in this loop until it gets an input
                 if (isPaused)
                 {
-                   cout << "\nTimer paused... Press SPACE to resume, press ESCAPE to Ddlete" << endl;
+                   cout << "\nTimer paused... Press SPACE to resume, press ESCAPE to Delete Timer" << endl;
                 }
                 else 
                 {
