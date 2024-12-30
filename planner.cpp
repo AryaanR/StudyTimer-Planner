@@ -9,7 +9,7 @@
 
 using namespace std;
 using namespace std::chrono;
-//maybe make tasks sort by due date when new task is added?
+
 class Task{
     private:
     string taskName;
@@ -161,8 +161,6 @@ class Task{
         }
     }
         
-
-//edited
     Task(string initTaskName, int day, int month, int year, bool complete)
     {
 
@@ -569,7 +567,6 @@ class PomodoroTimer{
     //why does this all happen in the constructor??
     PomodoroTimer()
     {
-        //smth happens before constructor (constructor conflict between normal and overloaded one?)
         //should ask for total work time (minutes), and desired break time (ideally, store this as a preference in a .txt file later)
         cout << "What's your total work time?: ";
         cin >> totalWorkMinutes;
@@ -608,6 +605,7 @@ class PomodoroTimer{
         settings >> workMinutes >> breakMinutes;
 
     }
+    
     void start()
     {
         int workSessions = timerRepeat;

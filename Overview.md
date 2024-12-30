@@ -9,7 +9,7 @@ Core Features
 - Safety settings to stop user from entering invalid dates, or from invalid dates causing a segfault when printing
 
 ---NOT DONE----
-- Work timer settings that are saved to a file (different)
+- Work timer settings that are saved to a file (different) (I aint doing that)
 
 
 Nice to Have:
