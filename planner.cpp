@@ -1,7 +1,6 @@
 # include<iostream>
 # include<chrono>
 # include<fstream>
-//"thread" allows you to pass off certain parts of this program to different threads in the CPU, or just stop the thread/ process entirely
 # include <thread>
 # include <vector>
 # include <conio.h>
@@ -123,7 +122,6 @@ class Task{
     {
         ofstream tasksFile;
         tasksFile.open("saved_tasks.txt", ios::app);
-        //make sure tasks don't interfere
         if (!tasksFile.fail())
         {
             string temp;
@@ -174,7 +172,6 @@ class Task{
         }
         else
         {
-            //since you didn't assign this case anything, the computer got angry and put garbage values?
             dueDate[0] = -1;
             dueDate[1] = -1;
             dueDate[2] = -1;
@@ -251,25 +248,20 @@ class TaskList{
         int day, month,year = 0;
         bool complete;
 
-        //MAKE SURE TO PASS BY REFERENCE
         int i = 0;
         while(tasksFile >> name >> day >> month >> year >> complete)
         {
             taskListVector.push_back(new Task(name, day, month, year, complete));
             i++;
         }
-        //load task by getting all its data in vars, passing it into 
-        //should be able to load one task, and use this to load all
-        //no need to split, if so, refactor
         tasksFile.close();
     }
 
     void toggleCompleteTask(int taskNumber)
     {
         
-        //edit task (from looking at listand then save vector into file?
         taskNumber -= 1;
-        //dont open a file twice during runtime, FILE DOESNT OPEN ANYWAY DURING RUNTIME, YOU JUST DO IT HERE, WHATS THE POINT?
+
         if (taskListVector.empty())
         {
             cout << "Empty Task List" <<endl;
@@ -298,27 +290,16 @@ class TaskList{
 
     void deleteTask(int index)
     {
-        //deletes the top task as well
-        //erases that task (goes into file, finds that line, and erases it)
-        //go to task vector, and find that index, find the name of the task, and then compare with every other read part in file, when you find the name, wipe that entire line from the .txt file
-        //vector already knows which line in the .txt, no need for scanning thru file, just remove the line correspondent to the vector
-         
-         //edit the actual vector to remove that thing, and then rewrite from that vector (memory buffer instead of temp file since tasks don't take up alot of memory)
-        //VECTOR OPERATION WORKS, just writing part is wrong
+
         taskListVector.erase(taskListVector.begin() + index);
         //removes from vector, now reprint
         updateTaskFile();
-        //can just rewrite the entire file again this time ignoring the point in the vector that is equal to the line you want to delete
-        //would have to continuously loop, just replace with a blank?
-
     }
 
     void updateTaskFile()
     {
         ofstream taskWrite;
         taskWrite.open("saved_tasks.txt");
-        //basically properly rewrites all tasks from vector so tasks don't duplicate
-        //should easily be callable so any update in the vector (ie completion) can be done with one function
         for (int i = 0; i < taskListVector.size(); i++)
         {
             if (!taskWrite.fail())
@@ -337,12 +318,6 @@ class TaskList{
     void sortByDueDate()
     {
         //just sorts the vector by due date, which allows you to change how the txt file is organized dynamically by calling this before saving in the save function
-
-        //sort by years? add up the day month and years, the most recent will have the lowest and the farthest away will have the highest sum
-        //hash this into a "sum" vector for each index in taskListVector, with its respective dateSum
-        //use quicksort to sort this, but keep a hash to store both the index and the value in a pair, since if value moves, its index needs to be tracked???
-        //then, use 
-
         //organize by date sum
         //need to only access datesums 
         quicksort(taskListVector, 0, taskListVector.size() - 1);
@@ -360,7 +335,6 @@ class TaskList{
         //as long as pointers don't cross
         while (i < j)
         {
-            //make sure to say high - 1 or low + 1 so computer doesn't evaluate a segfault
             while (arr[i]->getDateSum() <= pivot && i <= high - 1)
             {
                 i++;
@@ -380,8 +354,7 @@ class TaskList{
                 arr[i] = temp;
             }
         }
-        //here, you found your parition value, so swap with value lower than pivot, which is your j pointer
-        //swaps the actual task pointers
+
         Task* temp2 = arr[j];
         arr[j] = arr[low];
         arr[low] = temp2;
@@ -407,7 +380,7 @@ class TaskList{
 
 class Clock{
     public: 
-    //make this a process in another thread to stop it from stopping program
+
     static void printTime()
     {
         while (true)
@@ -457,7 +430,6 @@ class Timer{
                 cout << "\r"<<hoursLeft << " hours, " 
                      << minutesLeft << " minutes, " 
                      << secondsLeft <<" seconds left." << flush;
-                     //what does flush do?
 
                 //change the actual value of the hours, minutes, and seconds time to adjust the etc when paused
                 hoursTime = hoursLeft;
@@ -470,24 +442,16 @@ class Timer{
        if (timeInSeconds > -1)
        {
         cout<< "Timer Complete!" << endl;
-        //should store this into today's work time (in the pomodoro method, not this)
        }
        else
        {
         cout<<"Cancelled Timer" << endl;
-        //should not store this time as "work time"
        }
 
     }
-    //passes by reference to directly change the actual value in the original start function
+
     void pauseAndCancel(int &timeInSeconds)
     {
-        //should have an option to cancel the timer and clear it!
-
-        //should pause the time, and update the etc
-        //how to "pause?"
-        // if pause, it should break from the while loop, or at least stay in a state that it prints a prompt once and wait until the user presses another button?
-        //better to use a boolean state as a toggle instead of asking for a keystroke twice
         if (_kbhit())
         {
             char ch = _getch();
@@ -551,7 +515,6 @@ class Timer{
 };
 
 class PomodoroTimer{
-    //shouldn't prompt timer duration for this constructor!
     Timer* workTimer;
     Timer* breakTimer;
     int totalWorkMinutes;
@@ -559,15 +522,11 @@ class PomodoroTimer{
     int breakMinutes;
     int timerRepeat;
     int leftoverWork;
-    //duration is an "interval of time" type and "time point" is a point in time, two different things
-    //default constructor that does all the prompting
     public: 
 
-    //bc derived, calling original blank constructor and then this constructor, Therefore don't make this a derived class of timer, as it behaves differently
-    //why does this all happen in the constructor??
     PomodoroTimer()
     {
-        //should ask for total work time (minutes), and desired break time (ideally, store this as a preference in a .txt file later)
+
         cout << "What's your total work time?: ";
         cin >> totalWorkMinutes;
         cout << "Work time (1 sitting in minutes): ";
@@ -576,15 +535,11 @@ class PomodoroTimer{
         cout << "How long is your break time (minutes)?: ";
         cin >> breakMinutes;
         breakTimer = new Timer(0, breakMinutes, 0);
-        //calculate repetitions of work, break cycle
-        timerRepeat = totalWorkMinutes / (workMinutes + breakMinutes);
-        //does this give the minutes or the seconds as well?
-        leftoverWork = totalWorkMinutes - ((workMinutes + breakMinutes) * timerRepeat);
-        //cout <<"Total Work: " << totalWorkMinutes << ", Working " << workMinutes << " in one sitting, with " << breakMinutes << " minute breaks, repeated " << timerRepeat <<" times, with leftover time: " << leftoverWork <<endl;
-        //cout<<"Total work time: " << ((workMinutes + breakMinutes) * timerRepeat + leftoverWork);
-        //print the etc based on your total work minutes?, but you want this to update if paused, so take etcs from each timer, multiply by repetitions? or pause, when resume, take new time point and add time remaining from totalWorkMinutes??
 
-        //create a work and a break timer of that length and time, and then delete and create new timers of the new lengths
+        timerRepeat = totalWorkMinutes / (workMinutes + breakMinutes);
+
+        leftoverWork = totalWorkMinutes - ((workMinutes + breakMinutes) * timerRepeat);
+        
         workTimer = new Timer(0, workMinutes, 0);
         breakTimer = new Timer(0, breakMinutes, 0);
 
@@ -637,11 +592,9 @@ class PomodoroTimer{
         this_thread::sleep_for(seconds(5));
     }
 
-    //should also store the work data into a .txt file, as well as the day, so it can be displayed on a heat map
 };
 
 
-//classes are default private, structs are default public, need to specify whether your inherited class can be seen by the outside world
 class SubTimer : public Timer{
     string timerName;
     public:
@@ -692,7 +645,6 @@ while(!exitProgram) {
             cout << string(100, '\n');
             while (!backtoMain)
             {
-            //create a back to main menu variable that stops this from going back to main menu and starting the timer one
             //Tasks Menu
                 cout << "+=========================+" << endl;
                 cout << "      T A S K  M E N U     " << endl;
@@ -707,23 +659,14 @@ while(!exitProgram) {
                 int taskInput = stoi(input2);
                 //switch statements are good for menu options
                 switch (taskInput){
-                    //switch statements occur one after the other and then delete all tasks
                     case 1:{
                         Task* newTask = new Task();
-                        //need to pass by reference: reference "trustworthy pointer that always points to smth"
-                        //This is why passing by reference to an object can be done without the * notation
-                        //fstream is an object, so passing by value causes a copy of the object, not what you want
-                        //passing into a function is basically like saying "here's the object", by value makes a carbon copy on a printer, by reference (& to actual function) 
-                        //connects a string to the object and gives it back!!
                         newTask->saveTask(); 
-                        //when you make a variable in c++, you can't "jump over" the declaration of a variable 
-                        //without creating a new scope
                         break;
                     }
                     case 2:{
                         mainTaskList.loadAllTasks();
                         mainTaskList.printAllTasks();
-                        //FOR YOUR CHANGES TO BE UPDATED AND REREAD IN REAL TIME, MAKE SURE TO PROPERLY CLOSE THE FILE AFTER EDITING AND OPENING IT!
                         break;
                     }
                     
@@ -787,10 +730,8 @@ while(!exitProgram) {
                     backtoMain = true;
                     break;
                     }
-                    //break gets out of the entire switch statement
                     
             }
-            //if you don't add a break it automatically goes to the next case
         }
         break;
     }
@@ -813,10 +754,7 @@ while(!exitProgram) {
                 //want UI that allows you to access both
                 switch(timerInput){
                     case 1:{
-                        //creating a pomodoro timer
-
                         PomodoroTimer* currentTimer = new PomodoroTimer();
-                        //needed?
                         currentTimer->start();
                         break;
                     }
