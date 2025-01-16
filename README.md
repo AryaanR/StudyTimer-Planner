@@ -1,5 +1,5 @@
 # CLI-Based Study Planner and Pomodoro Timer
-This command-line interface (CLI) application is designed to increase productivity through a combination of task tracking and Pomodoro timing functionalities. Written in C++, users can optimize their workflow by structuring work sessions into manageable intervals.
+This command-line interface (CLI) application written in C++ is designed to increase productivity through a combination of task tracking and Pomodoro timing functionalities. Users can optimize their workflow by structuring work sessions into manageable intervals.
 
 ### Skills Used:
 - Algorithm implementation
